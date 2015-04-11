@@ -6,6 +6,11 @@
 <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.3/mapbox.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.3/mapbox.css' rel='stylesheet' />
+
+<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-geodesy/v0.1.0/leaflet-geodesy.js'></script>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
 <style>
   body { margin:0; padding:0; }
   #map { position:absolute; top:0; bottom:0; width:100%; }
@@ -49,24 +54,39 @@ if (!navigator.geolocation) { alert('Get a better browser'); }
 
 navigator.geolocation.getCurrentPosition(function(position) {
 	geojson={"type": "Feature", "id": null, "properties": {}, "geometry": {"type": "Point", "coordinates": [position.coords.longitude, position.coords.latitude]}}
+	
 	L.geoJson(geojson).addTo(map);
+	
+	var desyCircle = LGeo.circle([position.coords.latitude, position.coords.longitude], 2000000, {
+	parts: 60,
+	color: '#f00',
+	fillOpacity: 0
+}).addTo(map);
+	
 })
 
-//var polyline = L.polyline([]).addTo(map)
+var polyline = L.polyline([]).addTo(map)
 
 addPos();
 
-setInterval(addPos, 1000 * 2);
+setInterval(addPos, 10000 * 2);
 
+t=0
 function addPos() {
-	ISSLayer.loadURL('api/getPos').addTo(map);
-//	polyline.addLatLng(
-//	L.latLng(
-//	Math.cos(pointsAdded / 20) * 30,
-//	pointsAdded));
+	$.getJSON('api/getPos',callbackfun);
+	
+	function callbackfun(data){
+		console.log(data);
+		
+		polyline.addLatLng(
+		L.latLng(
+		data.geometry.coordinates[1],
+		data.geometry.coordinates[0]));
+		ISSLayer.setGeoJSON(data);
+	}
 
-//	// Pan the map along with where the line is being added.
-//	map.setView([0, pointsAdded], 3);
+////	// Pan the map along with where the line is being added.
+////	map.setView([0, pointsAdded], 3);
 }
 
 </script>
