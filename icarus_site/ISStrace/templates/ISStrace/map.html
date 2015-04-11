@@ -45,13 +45,28 @@ ISSLayer.on('layeradd', function(e) {
 
 });
 
+if (!navigator.geolocation) { alert('Get a better browser'); }
+
+navigator.geolocation.getCurrentPosition(function(position) {
+	geojson={"type": "Feature", "id": null, "properties": {}, "geometry": {"type": "Point", "coordinates": [position.coords.longitude, position.coords.latitude]}}
+	L.geoJson(geojson).addTo(map);
+})
+
+//var polyline = L.polyline([]).addTo(map)
 
 addPos();
 
 setInterval(addPos, 1000 * 2);
 
 function addPos() {
-	ISSLayer.loadURL('api/getPos');
+	ISSLayer.loadURL('api/getPos').addTo(map);
+//	polyline.addLatLng(
+//	L.latLng(
+//	Math.cos(pointsAdded / 20) * 30,
+//	pointsAdded));
+
+//	// Pan the map along with where the line is being added.
+//	map.setView([0, pointsAdded], 3);
 }
 
 </script>
