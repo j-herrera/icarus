@@ -25,7 +25,7 @@
 <body>
 <div id='map'></div>
 <script>
-var map = L.mapbox.map('map', 'examples.map-8ly8i7pv').setView([55.858, -4.259], 2);
+var map = L.mapbox.map('map', 'examples.map-8ly8i7pv').setView([55.858, -4.259], 2); //examples.map-8ly8i7
 
 var ISSLayer = L.mapbox.featureLayer().addTo(map);
 
@@ -45,8 +45,14 @@ ISSLayer.on('layeradd', function(e) {
 
 });
 
-ISSLayer.loadURL('api/getPos');
 
+addPos();
+
+setInterval(addPos, 1000 * 2);
+
+function addPos() {
+	ISSLayer.loadURL('api/getPos');
+}
 
 </script>
 </body>
