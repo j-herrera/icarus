@@ -7,5 +7,6 @@ urlpatterns = [
     # url(r'^blog/', include('blog.urls')),
 
 	url(r'^ISStrace/', include('ISStrace.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+	url(r'^ISSplots/', include('ISSplots.urls')),
+	url(r'^admin/', include(admin.site.urls)),
 ]
