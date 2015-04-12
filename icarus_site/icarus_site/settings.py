@@ -25,7 +25,7 @@ SECRET_KEY = 'h&ygn(nl+@%-_^hp)$u6u99-ou=s6895^*#ctot50*n_wv!=d7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'home',
     'ISStrace',
     'ISSplots',
     'ISS3D',

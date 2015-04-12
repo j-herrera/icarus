@@ -10,27 +10,27 @@
 <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-geodesy/v0.1.0/leaflet-geodesy.js'></script>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-
 <style>
   body { margin:0; padding:0; }
   #map { position:absolute; top:0; bottom:0; width:100%; }
   
   .ISS-dot {
-  background:#00B800;
-  border:1px solid rgba(255,255,255,0.5);
-  color:#fff;
-  font-weight:bold;
-  text-align:center;
-  border-radius:50%;
-  line-height:30px;
+	  background:#00B800;
+	  border:1px solid rgba(255,255,255,0.5);
+	  color:#fff;
+	  font-weight:bold;
+	  text-align:center;
+	  border-radius:50%;
+	  line-height:30px;
   }
 
 </style>
 </head>
 <body>
 <div id='map'></div>
+{% load staticfiles %}
 <script>
-var map = L.mapbox.map('map', 'examples.map-8ly8i7pv').setView([55.858, -4.259], 2); //examples.map-8ly8i7
+var map = L.mapbox.map('map', 'examples.map-2k9d7u0c').setView([55.858, -4.259], 2); //.map-i86nkdio  .map-i86l3621 .map-20v6611k .map-8ced9urs .map-h67hf2ic .map-i875mjb7 .map-2k9d7u0c .map-igb471ik 
 
 var ISSLayer = L.mapbox.featureLayer().addTo(map);
 
@@ -39,7 +39,8 @@ ISSLayer.on('layeradd', function(e) {
 		feature = marker.feature;
 		
 	var icon = {
-      "iconSize": [12,12],
+      "iconSize": [10,10],
+      "iconUrl": "{% static "ISStrace/ISSicon.png" %}",
       // "iconAnchor": [10,10],
       // "popupAnchor": [0, -10],
       //"html": feature.geometry.coordinates,
@@ -57,8 +58,12 @@ navigator.geolocation.getCurrentPosition(function(position) {
 	
 	L.geoJson(geojson).addTo(map);
 	
-	var desyCircle = LGeo.circle([position.coords.latitude, position.coords.longitude], 2000000, {
-	parts: 60,
+	//Cheating
+	alt = 397.33070585595;
+	alpha = Math.acos(6357/(6357+alt));
+	var desyCircle = LGeo.circle([position.coords.latitude, position.coords.longitude], (6357+alt) * Math.sin(alpha) * 1.e3, {
+	parts: 200,
+	width: 0.1,
 	color: '#f00',
 	fillOpacity: 0
 }).addTo(map);
