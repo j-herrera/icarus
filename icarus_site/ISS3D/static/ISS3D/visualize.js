@@ -18,13 +18,32 @@ function init() {
 
 	scene = new THREE.Scene();
 	
-	var light	= new THREE.AmbientLight( 0x888888 )
+	var light	= new THREE.AmbientLight( 0x202020 )
 	scene.add( light )
 	
-	var light	= new THREE.DirectionalLight( 0xcccccc, 1 )
-	light.position.set(5,3,5)
-	scene.add( light )
+	Date.prototype.getJulian = function() {
+		return Math.floor((this / 86400000) - (this.getTimezoneOffset()/1440) + 2440587.5);
+	}
 
+	var today = new Date();
+	var julian = today.getJulian(); 
+	
+	ml = julian - 2451545.0;
+	L = 280.460 + 0.9856474 * ml;
+	g = 357.528 + 0.9856003 * ml;
+	lambda = L + 1,915 * Math.sin(g*Math.PI/180) + 0.02 * Math.sin(2*g*Math.PI/180);
+	beta = 0;
+	epsilon = 23.439 - 0.0000004*ml;
+	
+	alpha = Math.atan(Math.cos(epsilon*Math.PI/180) * Math.tan(lambda*Math.PI/180))
+	delta = Math.asin(Math.sin(epsilon*Math.PI/180) * Math.sin(lambda*Math.PI/180))
+	
+	ST = 360 /(today.getUTCHours()+today.getUTCHours()/60+today.getUTCMinutes()/60) * Math.PI /180;
+	
+	var light	= new THREE.DirectionalLight( 0x888888, 1 )
+	light.position.set(10 *Math.cos(alpha+ST),10*Math.sin(alpha+ST),10*Math.sin(delta))
+	scene.add( light )
+	
 
 	var PI2 = Math.PI * 2;
 
@@ -43,8 +62,8 @@ function init() {
 	n = obj['mm'] * 2 * Math.PI / 3600 /24;
 	sma = Math.pow( 398600.4418 / Math.pow(n, 2) , 1/3.0)
 	sma = sma/6371/2;
-	console.log(sma);
-	var geometry_iss = new THREE.TorusGeometry( sma, 0.01, 16, 100 );
+	
+	var geometry_iss = new THREE.TorusGeometry( sma, 0.005, 16, 100 );
 	var material_iss = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
 	var orbit = new THREE.Mesh( geometry_iss, material_iss );
 	
@@ -70,15 +89,39 @@ function init() {
 
 	orbit.applyMatrix(m);
 	
-	scene.add( orbit);
-	
+	scene.add( orbit);	
 	
 	
 	var geometry_earth   = new THREE.SphereGeometry(0.5, 32, 32)
 	var material_earth  = new THREE.MeshPhongMaterial()
-	material_earth.map    = THREE.ImageUtils.loadTexture('/static/ISS3D/earthmap1k.jpg')
+	
+	material_earth.map    = THREE.ImageUtils.loadTexture('/static/ISS3D/2_no_clouds_8k.jpg')
+	material_earth.bumpMap    = THREE.ImageUtils.loadTexture('/static/ISS3D/elev_bump_8k.jpg')
+	material_earth.bumpScale = 0.05
+	material_earth.specularMap    = THREE.ImageUtils.loadTexture('/static/ISS3D/water_8k.png')
+	material_earth.specular  = new THREE.Color('grey')
+
+	
 	var earthMesh = new THREE.Mesh(geometry_earth, material_earth)
 	scene.add(earthMesh)
+	
+	var clouds =  new THREE.Mesh(
+		new THREE.SphereGeometry(0.51, 32, 32),
+		new THREE.MeshPhongMaterial({
+		map: THREE.ImageUtils.loadTexture('/static/ISS3D/fair_clouds_4k.png'),
+		transparent: true
+		})
+	);
+	scene.add(clouds);
+	
+	
+	var geometry_sky  = new THREE.SphereGeometry(5, 32, 32)
+	var material_sky  = new THREE.MeshBasicMaterial()
+	material_sky.map   = THREE.ImageUtils.loadTexture('/static/ISS3D/sky.jpg')
+	material_sky.side  = THREE.BackSide
+	var mesh_sky  = new THREE.Mesh(geometry_sky, material_sky)
+	scene.add(mesh_sky)
+	
 	
 	
 	renderer = new THREE.WebGLRenderer( { antialias: false } );
