@@ -34,36 +34,34 @@
 			<option value=11>Velocity</option>
 		</select>
 	</div>
+	<div style="text-align:center;", id='chart-container'></div>
     <script>
-		var plotDataIndex = 2;
+		var plotDataIndex = 0;
 
 		var alertChange = function() {
 			var selectedValue = d3.event.target.value;
 			var selectedIndex = d3.event.target.selectedIndex;
-			console.log(selectedIndex);
 
-			plotDataIndex = 2 + selectedIndex;
-			console.log(plotDataIndex)
+			plotDataIndex = selectedIndex;
 		}
 
 		d3.select('#variable-list').on('change', alertChange);
-		var n = 10;
+		var n = 100;
 		var data = [
-			{name:'epochYear', values:d3.range(0)},
-			{name:'epoch', values:d3.range(0)},
-			{name:'inclination', values:d3.range(0)},
-			{name:'RAAN', values:d3.range(0)},
+			{name:'inclination (deg)', values:d3.range(0)},
+			{name:'RAAN (deg)', values:d3.range(0)},
 			{name:'eccentricity', values:d3.range(0)},
-			{name:'arg_perigee', values:d3.range(0)},
-			{name:'mean_anomaly', values:d3.range(0)},
-			{name:'mean_motion', values:d3.range(0)},
-			{name:'latitude', values:d3.range(0)},
-			{name:'longitude', values:d3.range(0)},
-			{name:'altitude', values:d3.range(0)},
-			{name:'velocity', values:d3.range(0)}
+			{name:'arg_perigee (deg)', values:d3.range(0)},
+			{name:'mean_anomaly (deg)', values:d3.range(0)},
+			{name:'mean_motion (rev. per day)', values:d3.range(0)},
+			{name:'latitude (deg)', values:d3.range(0)},
+			{name:'longitude (deg)', values:d3.range(0)},
+			{name:'altitude (km)', values:d3.range(0)},
+			{name:'velocity (m/s)', values:d3.range(0)},
 		]
-		var margin = {top: 10, right: 20, bottom: 30, left: 50},
-    		width = 960 - margin.left - margin.right,
+		var time = d3.range(0);
+		var margin = {top: 10, right: 20, bottom: 30, left: 500},
+    		width = 1500 - margin.left - margin.right,
 		    height = 600 - margin.top - margin.bottom;
 
 		var x = d3.scale.linear()
@@ -73,13 +71,14 @@
 			.domain([-90, 90])
 			.range([height, 0]);
 
-		var yAxis = d3.svg.axis().scale(y).orient('right').ticks(5);
+		var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(10);
+		var yAxis = d3.svg.axis().scale(y).orient('right').ticks(10);
 
 		var valueLine = d3.svg.line()
 			.x(function(d, i) {return x(i);})
 			.y(function(d, i) {return y(d);});
 
-		var svg = d3.select('body')
+		var svg = d3.select('#chart-container')
 			.append('svg')
 				.attr('width', width + margin.left + margin.right)
 				.attr('height', height + margin.top + margin.bottom)
@@ -88,28 +87,47 @@
 				.attr('transform',
 					'translate(' + margin.left + ',' + margin.top + ')');
 
+		svg.append("defs").append("clipPath")
+				.attr("id", "clip")
+			.append("rect")
+				.attr("width", width)
+				.attr("height", height);
+
+
 		function initialiseData(data) {
 			var jsonData;
 			d3.json('api/getISSData', function(error, json) {
 				if (error) return console.warn(error);
 				jsonData = json;
 				
-				data[0].values.push(jsonData.epochYear);
-				data[1].values.push(jsonData.epoch);
-				data[2].values.push(jsonData.inc);
-				data[3].values.push(jsonData.raan);
-				data[4].values.push(jsonData.ecc);
-				data[5].values.push(jsonData.aper);
-				data[6].values.push(jsonData.ma);
-				data[7].values.push(jsonData.mm);
-				data[8].values.push(jsonData.lat);
-				data[9].values.push(jsonData.lon);
-				data[10].values.push(jsonData.alt);
-				data[11].values.push(jsonData.vel);
+				data[0].values.push(jsonData.inc);
+				data[1].values.push(jsonData.raan);
+				data[2].values.push(jsonData.ecc);
+				data[3].values.push(jsonData.aper);
+				data[4].values.push(jsonData.ma);
+				data[5].values.push(jsonData.mm);
+				data[6].values.push(jsonData.lat);
+				data[7].values.push(jsonData.lon);
+				data[8].values.push(jsonData.alt);
+				data[9].values.push(jsonData.vel);
+
+				dateLocal = new Date();
+				time.push(dateLocal);
 
 				svg.append('path')
 					.attr('class', 'line')
 					.attr('d', valueLine(data[plotDataIndex].values));
+
+				svg.append('text')
+					.attr('class', 'y label')
+					.attr("text-anchor", "end")
+				    .attr("x", -10)
+				    .attr("y", height / 2.0)
+				    .text(data[plotDataIndex].name);
+
+/*				svg.append('g')
+					.attr('class', 'x axis')
+					.call(xAxis);*/
 
 				svg.append('g')
 					.attr('class', 'y axis')
@@ -126,43 +144,64 @@
     	        if (error) return console.warn(error);
     	        jsonData = json;
 
-				data[0].values.push(jsonData.epochYear);
-				data[1].values.push(jsonData.epoch);
-				data[2].values.push(jsonData.inc);
-				data[3].values.push(jsonData.raan);
-				data[4].values.push(jsonData.ecc);
-				data[5].values.push(jsonData.aper);
-				data[6].values.push(jsonData.ma);
-				data[7].values.push(jsonData.mm);
-				data[8].values.push(jsonData.lat);
-				data[9].values.push(jsonData.lon);
-				data[10].values.push(jsonData.alt);
-				data[11].values.push(jsonData.vel);
+				data[0].values.push(jsonData.inc);
+				data[1].values.push(jsonData.raan);
+				data[2].values.push(jsonData.ecc);
+				data[3].values.push(jsonData.aper);
+				data[4].values.push(jsonData.ma);
+				data[5].values.push(jsonData.mm);
+				data[6].values.push(jsonData.lat);
+				data[7].values.push(jsonData.lon);
+				data[8].values.push(jsonData.alt);
+				data[9].values.push(jsonData.vel);
 
-				y.domain([d3.min(data[plotDataIndex].values), d3.max(data[plotDataIndex].values)]);
-				var svg = d3.select('body');
+				dateLocal = new Date();
+				time.push(dateLocal);
 
-				if (data[9].values.length > n - 1) {
+				y.domain([d3.min(data[plotDataIndex].values),
+					d3.max(data[plotDataIndex].values)]);
+				// Set limits for constant data as value +- 1% 
+				if (d3.min(data[plotDataIndex].values) == d3.max(data[plotDataIndex].values)) {
+					epsY = Math.abs(0.01 * d3.min(data[plotDataIndex].values));
+					y.domain([d3.min(data[plotDataIndex].values) - epsY,
+						d3.min(data[plotDataIndex].values) + epsY]);
+				}
+				var svg = d3.select('#chart-container');
+					svg.append("defs").append("clipPath")
+							.attr("id", "clip")
+						.append("rect")
+							.attr("width", width)
+							.attr("height", height);
+
+				if (data[plotDataIndex].values.length > n - 1) {
+					for (ii = 0; ii < 10; ii++) {
+						data[ii].values.shift();
+					}
 					var path = svg.select('path');
 					path.attr('d', valueLine(data[plotDataIndex].values))
 						.attr('transform', null)
 						.transition()
-							.duration(0)
+							.duration(1500)
 							.attr('transform', 'translate(' + x(-1) + ')');
-					for (ii = 0; ii < 12; ii++) {
-						data[ii].values.shift();
-					}
+
+
+					time.shift();
 				} else {
 					svg.select('.line')
 						.attr('d', valueLine(data[plotDataIndex].values))
 						.attr('transform', null);
 				}
-						
+				svg.select('text')
+					.attr('class', 'y label')
+					.attr("text-anchor", "end")
+				    .attr("x", -10)
+				    .attr("y", height / 2.0)
+				    .text(data[plotDataIndex].name);
+			
 				svg.select('.y.axis')
 					.transition()
 					.duration(0)
 					.call(yAxis);
-				console.log(data[plotDataIndex].values);
 			});
 		}
 

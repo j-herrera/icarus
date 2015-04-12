@@ -27,11 +27,8 @@ def getISSData(request):
 
 	dictionary = json.loads(data.getvalue().decode())
 	
-	line1 = dictionary['line1']
 	line2 = dictionary['line2']
 	
-	epochYear = float(line1[18:20])
-	epoch = float(line1[20:32])
 	inc = float(line2[8:16])
 	raan = float(line2[17:25])
 	ecc = float('0.' + line2[26:33])
@@ -57,6 +54,6 @@ def getISSData(request):
 	alt = dictionary['altitude']
 	vel = dictionary['velocity']
 
-	return JsonResponse({'epochYear':epochYear, 'epoch':epoch, 'inc':inc,
+	return JsonResponse({'inc':inc,
 		'raan':raan, 'ecc':ecc, 'aper':aper, 'ma':ma, 'mm':mm,
 		'lat':lat, 'lon':lon, 'alt':alt, 'vel':vel}, safe=False)
