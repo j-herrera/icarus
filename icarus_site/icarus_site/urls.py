@@ -8,5 +8,6 @@ urlpatterns = [
 
 	url(r'^ISStrace/', include('ISStrace.urls')),
 	url(r'^ISSplots/', include('ISSplots.urls')),
+	url(r'^ISS3D/', include('ISS3D.urls')),
 	url(r'^admin/', include(admin.site.urls)),
 ]

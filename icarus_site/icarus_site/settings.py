@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'ISStrace',
     'ISSplots',
+    'ISS3D',
 )
 
 MIDDLEWARE_CLASSES = (
