@@ -38,9 +38,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'home',
-#    'ISStrace',
-#    'ISSplots',
-#    'ISS3D',
+    'ISStrace',
+    'ISSplots',
+    'ISS3D',
 )
 
 MIDDLEWARE_CLASSES = (
