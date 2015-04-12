@@ -76,7 +76,6 @@ function addPos() {
 	$.getJSON('api/getPos',callbackfun);
 	
 	function callbackfun(data){
-		console.log(data);
 		
 		polyline.addLatLng(
 		L.latLng(
@@ -84,9 +83,12 @@ function addPos() {
 		data.geometry.coordinates[0]));
 		ISSLayer.setGeoJSON(data);
 		
-		var messg = '<h2>Position<\/h2>' +
+		var messg = '<h2>Telemetry data<\/h2>' +
 		'<p>Lat: ' + data.geometry.coordinates[1] + '<br \/>' +
-		'Lon: ' + data.geometry.coordinates[0] + '<\/p>';
+		'Lon: ' + data.geometry.coordinates[0] +  '<br \/>' +
+		'Velocity: ' + data.properties.vel + '<br \/>' +
+		'Altitude: ' + data.properties.alt + '<\/p>'
+		;
 		ISSLayer.bindPopup(messg);
 	}
 

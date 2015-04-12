@@ -29,5 +29,5 @@ def getPos(request):
 	
 	#point = Point((-4.289904821807117, 55.86766270695622))
 	point = Point((dictionary['longitude'], dictionary['latitude']))
-	geop = Feature(geometry=point)
+	geop = Feature(geometry=point, properties={"alt":  dictionary['altitude'], "vel":  dictionary['velocity']})
 	return JsonResponse(geop, safe=False)
