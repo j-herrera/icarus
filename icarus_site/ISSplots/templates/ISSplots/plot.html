@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset='utf-8'>
-    <title>D3 World Map</title>
+    <title>ISS plots</title>
     <style>
         .x.axis line {
             shape-rendering: auto;
@@ -20,10 +20,49 @@
     <script src='http://d3js.org/d3.v3.min.js'></script>
   </head>
   <body>
+	<div>
+		<select id="variable-list">
+			<option value=2>Inclination</option>
+			<option value=3>Right Ascension of the Ascending Node</option>
+			<option value=4>Eccentricity</option>
+			<option value=5>Argument of Perigee</option>
+			<option value=6>Mean Anomaly</option>
+			<option value=7>Mean Motion</option>
+			<option value=8>Latitude</option>
+			<option value=9>Longitude</option>
+			<option value=10>Altitude</option>
+			<option value=11>Velocity</option>
+		</select>
+	</div>
     <script>
+		var plotDataIndex = 2;
+
+		var alertChange = function() {
+			var selectedValue = d3.event.target.value;
+			var selectedIndex = d3.event.target.selectedIndex;
+			console.log(selectedIndex);
+
+			plotDataIndex = 2 + selectedIndex;
+			console.log(plotDataIndex)
+		}
+
+		d3.select('#variable-list').on('change', alertChange);
 		var n = 10;
-		var data = d3.range(0);
-		var margin = {top: 30, right: 20, bottom: 30, left: 50},
+		var data = [
+			{name:'epochYear', values:d3.range(0)},
+			{name:'epoch', values:d3.range(0)},
+			{name:'inclination', values:d3.range(0)},
+			{name:'RAAN', values:d3.range(0)},
+			{name:'eccentricity', values:d3.range(0)},
+			{name:'arg_perigee', values:d3.range(0)},
+			{name:'mean_anomaly', values:d3.range(0)},
+			{name:'mean_motion', values:d3.range(0)},
+			{name:'latitude', values:d3.range(0)},
+			{name:'longitude', values:d3.range(0)},
+			{name:'altitude', values:d3.range(0)},
+			{name:'velocity', values:d3.range(0)}
+		]
+		var margin = {top: 10, right: 20, bottom: 30, left: 50},
     		width = 960 - margin.left - margin.right,
 		    height = 600 - margin.top - margin.bottom;
 
@@ -49,19 +88,28 @@
 				.attr('transform',
 					'translate(' + margin.left + ',' + margin.top + ')');
 
-		random = d3.random.normal(0, .2);
-
 		function initialiseData(data) {
-			var latitude;
+			var jsonData;
 			d3.json('api/getISSData', function(error, json) {
 				if (error) return console.warn(error);
-				latitude = json.latitude;
+				jsonData = json;
 				
-				data.push(latitude);
+				data[0].values.push(jsonData.epochYear);
+				data[1].values.push(jsonData.epoch);
+				data[2].values.push(jsonData.inc);
+				data[3].values.push(jsonData.raan);
+				data[4].values.push(jsonData.ecc);
+				data[5].values.push(jsonData.aper);
+				data[6].values.push(jsonData.ma);
+				data[7].values.push(jsonData.mm);
+				data[8].values.push(jsonData.lat);
+				data[9].values.push(jsonData.lon);
+				data[10].values.push(jsonData.alt);
+				data[11].values.push(jsonData.vel);
 
 				svg.append('path')
 					.attr('class', 'line')
-					.attr('d', valueLine(data));
+					.attr('d', valueLine(data[plotDataIndex].values));
 
 				svg.append('g')
 					.attr('class', 'y axis')
@@ -73,33 +121,48 @@
 
 
 		function updateData(data) {
-	        var latitude;
+	        var jsonData;
     	    d3.json('api/getISSData', function(error, json) {
     	        if (error) return console.warn(error);
-    	        latitude = json.latitude;
+    	        jsonData = json;
 
-				data.push(latitude);
-				y.domain([d3.min(data), d3.max(data)]);
+				data[0].values.push(jsonData.epochYear);
+				data[1].values.push(jsonData.epoch);
+				data[2].values.push(jsonData.inc);
+				data[3].values.push(jsonData.raan);
+				data[4].values.push(jsonData.ecc);
+				data[5].values.push(jsonData.aper);
+				data[6].values.push(jsonData.ma);
+				data[7].values.push(jsonData.mm);
+				data[8].values.push(jsonData.lat);
+				data[9].values.push(jsonData.lon);
+				data[10].values.push(jsonData.alt);
+				data[11].values.push(jsonData.vel);
+
+				y.domain([d3.min(data[plotDataIndex].values), d3.max(data[plotDataIndex].values)]);
 				var svg = d3.select('body');
 
-				if (data.length > n - 1) {
+				if (data[9].values.length > n - 1) {
 					var path = svg.select('path');
-					path.attr('d', valueLine(data))
+					path.attr('d', valueLine(data[plotDataIndex].values))
 						.attr('transform', null)
 						.transition()
 							.duration(0)
 							.attr('transform', 'translate(' + x(-1) + ')');
-					data.shift();
+					for (ii = 0; ii < 12; ii++) {
+						data[ii].values.shift();
+					}
 				} else {
 					svg.select('.line')
-						.attr('d', valueLine(data))
+						.attr('d', valueLine(data[plotDataIndex].values))
 						.attr('transform', null);
 				}
 						
-					svg.select('.y.axis')
-						.transition()
-						.duration(0)
-						.call(yAxis);
+				svg.select('.y.axis')
+					.transition()
+					.duration(0)
+					.call(yAxis);
+				console.log(data[plotDataIndex].values);
 			});
 		}
 

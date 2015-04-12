@@ -13,7 +13,7 @@ from .models import ISSData
 def plot(request):
 	return render(request, 'ISSplots/plot.html')
 
-def getTLE(request):
+def getISSData(request):
 	c = pycurl.Curl()
 	data = BytesIO()
 
@@ -27,12 +27,18 @@ def getTLE(request):
 
 	dictionary = json.loads(data.getvalue().decode())
 	
+	line1 = dictionary['line1']
 	line2 = dictionary['line2']
 	
-	ma = line2[43:52]
-	return HttpResponse(ma)
+	epochYear = float(line1[18:20])
+	epoch = float(line1[20:32])
+	inc = float(line2[8:16])
+	raan = float(line2[17:25])
+	ecc = float('0.' + line2[26:33])
+	aper = float(line2[34:42])
+	ma = float(line2[43:51])
+	mm = float(line2[52:63])
 
-def getISSData(request):
 	c = pycurl.Curl()
 	data = BytesIO()
 
@@ -46,6 +52,11 @@ def getISSData(request):
 
 	dictionary = json.loads(data.getvalue().decode())
 	
-	latitude = dictionary['latitude']
+	lat = dictionary['latitude']
+	lon = dictionary['longitude']
+	alt = dictionary['altitude']
+	vel = dictionary['velocity']
 
-	return JsonResponse({'latitude':latitude}, safe=False)
+	return JsonResponse({'epochYear':epochYear, 'epoch':epoch, 'inc':inc,
+		'raan':raan, 'ecc':ecc, 'aper':aper, 'ma':ma, 'mm':mm,
+		'lat':lat, 'lon':lon, 'alt':alt, 'vel':vel}, safe=False)
