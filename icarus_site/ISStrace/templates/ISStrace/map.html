@@ -35,9 +35,9 @@ var map = L.mapbox.map('map', 'examples.map-8ly8i7pv').setView([55.858, -4.259],
 var ISSLayer = L.mapbox.featureLayer().addTo(map);
 
 ISSLayer.on('layeradd', function(e) {
-    var marker = e.layer,
-        feature = marker.feature;
-
+	var marker = e.layer,
+		feature = marker.feature;
+		
 	var icon = {
       "iconSize": [12,12],
       // "iconAnchor": [10,10],
@@ -83,6 +83,11 @@ function addPos() {
 		data.geometry.coordinates[1],
 		data.geometry.coordinates[0]));
 		ISSLayer.setGeoJSON(data);
+		
+		var messg = '<h2>Position<\/h2>' +
+		'<p>Lat: ' + data.geometry.coordinates[1] + '<br \/>' +
+		'Lon: ' + data.geometry.coordinates[0] + '<\/p>';
+		ISSLayer.bindPopup(messg);
 	}
 
 ////	// Pan the map along with where the line is being added.
