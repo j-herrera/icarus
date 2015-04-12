@@ -2,9 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 
-import pycurl
+import urllib3
 import json
-from io import BytesIO
 
 from .models import TLE
 
@@ -12,18 +11,10 @@ def Dplot(request):
 	return render(request, 'ISS3D/Dplot.html')
 
 def getTLE(request):
-	c = pycurl.Curl()
-	data = BytesIO()
+	http = urllib3.PoolManager(cert_reqs='CERT_NONE', assert_hostname=False)
+	r = http.request('GET', 'https://api.wheretheiss.at/v1/satellites/25544/tles')
 
-	c.setopt(pycurl.SSL_VERIFYHOST, 0)
-	c.setopt(pycurl.SSL_VERIFYPEER, 0)
-	c.setopt(pycurl.URL, 'https://api.wheretheiss.at/v1/satellites/25544/tles')
-	c.setopt(c.WRITEDATA, data)
-
-	c.perform()
-	c.close()
-
-	dictionary = json.loads(data.getvalue().decode())
+	dictionary = json.loads(r.data.decode())
 	
 	line2 = dictionary['line2']
 	inc = float(line2[9:16])
