@@ -1,0 +1,61 @@
+.x.axis line {
+    shape-rendering: auto;
+}
+.y.axis line {
+    shape-rendering: auto;
+}
+
+body { font: 12px Arial;}
+
+path { 
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+/*#thelist {*/
+/*    margin-left: auto;*/
+/*    margin-right: auto;*/
+/*    width: 20%;*/
+/*}*/
+
+select {
+    border: 1px solid lightblue;
+    border-radius: 10px;
+/*    color: black;*/
+/*    padding: 12px;*/
+/*    width: 300px;*/
+    -webkit-appearance: none;
+    
+    background-color: lightblue;
+    background-transparency: 0.5;
+/*    background-position: right 15px top 22px;*/
+/*    background-size: 18px 18px;*/
+}
+select:active {
+    border: 1px solid #000;
+}
+
+#thelist {
+/*    margin: 20px;*/
+}
+
+#variable-list{
+	text-align: center;
+	display: block;
+	margin: 0 auto;
+}
+
+#chart-container {
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
