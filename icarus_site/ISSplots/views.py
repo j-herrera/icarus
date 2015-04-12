@@ -48,4 +48,4 @@ def getISSData(request):
 	
 	latitude = dictionary['latitude']
 
-	return JsonResponse({'latitude':str(latitude)}, safe=False)
+	return JsonResponse({'latitude':latitude}, safe=False)
