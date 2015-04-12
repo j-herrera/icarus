@@ -9,6 +9,13 @@
 	font-style: normal;
 }
 
+.ica {
+	background-image: url(../icarus.svg);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 5%;
+}
+
 .hi-icon-wrap {
 	text-align: center;
 	margin: 0 auto;
@@ -164,7 +171,7 @@
 /* Effect 1a */
 .hi-icon-effect-1a .hi-icon:hover {
 	background: rgba(255,255,255,1);
-	color: #41ab6b;
+	color: #96a94b;
 }
 
 .hi-icon-effect-1a .hi-icon:hover:after {
@@ -198,7 +205,7 @@
 
 /* Effect 2 */
 .hi-icon-effect-2 .hi-icon {
-	color: #eea303;
+	color: #3851bc;
 	box-shadow: 0 0 0 3px #fff;
 	-webkit-transition: color 0.3s;
 	-moz-transition: color 0.3s;
@@ -218,7 +225,7 @@
 
 /* Effect 2a */
 .hi-icon-effect-2a .hi-icon:hover {
-	color: #eea303;
+	color: #3851bc;
 }
 
 .hi-icon-effect-2a .hi-icon:hover:after {
