@@ -25,7 +25,7 @@ SECRET_KEY = 'h&ygn(nl+@%-_^hp)$u6u99-ou=s6895^*#ctot50*n_wv!=d7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['icarus.eu-gb.mybluemix.net']
 
 
 # Application definition
@@ -38,9 +38,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'home',
-    'ISStrace',
-    'ISSplots',
-    'ISS3D',
+#    'ISStrace',
+#    'ISSplots',
+#    'ISS3D',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -78,12 +78,12 @@ WSGI_APPLICATION = 'icarus_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#    }
+#}
 
 
 # Internationalization
