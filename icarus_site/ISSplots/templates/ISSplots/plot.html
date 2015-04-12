@@ -1,26 +1,14 @@
 <!DOCTYPE html>
 <html>
+	{% load staticfiles %}
   <head>
     <meta charset='utf-8'>
     <title>ISS plots</title>
-    <style>
-        .x.axis line {
-            shape-rendering: auto;
-        }
-        .y.axis line {
-            shape-rendering: auto;
-        }
-
-        .line {
-            fill: none;
-            stroke: #000;
-            stroke-width: 1.5px;
-        }
-    </style>
-    <script src='http://d3js.org/d3.v3.min.js'></script>
+    <link rel="stylesheet" type="text/css" href="{% static "ISSplots/styles.css" %}"/>
+    <script src="{% static "ISSplots/d3.min.js" %}"></script>
   </head>
   <body>
-	<div>
+	<div id="thelist">
 		<select id="variable-list">
 			<option value=2>Inclination</option>
 			<option value=3>Right Ascension of the Ascending Node</option>
@@ -34,7 +22,7 @@
 			<option value=11>Velocity</option>
 		</select>
 	</div>
-	<div style="text-align:center;", id='chart-container'></div>
+	<div id='chart-container'></div>
     <script>
 		var plotDataIndex = 0;
 
