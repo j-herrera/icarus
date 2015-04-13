@@ -1,7 +1,14 @@
 var container, stats;
 var camera, controls, scene, renderer;
 var initialTime = new Date();
-var ii = 0;
+var newTime;
+var dtMax = 10;
+var tAcceleration = 10;
+var initialOrbitIndex;
+var maxOrbits = 5;
+var obj;
+
+//var dRaanByDt, dAperByDt;
 
 init();
 render();
@@ -59,9 +66,11 @@ function init() {
 		json = '[{"inc":0,"raan":0,"ecc":0, "aper":0}]';
 	}
 
-	var obj = JSON.parse(json);
-	console.log(obj);
-	
+	obj = JSON.parse(json);
+
+//	dRaanByDt = obj['dRaanByDt'];
+//	dAperByDt = obj['dAperByDt'];
+
 	n = obj['mm'] * 2 * Math.PI / 3600 /24;
 	sma = Math.pow( 398600.4418 / Math.pow(n, 2) , 1/3.0)
 	sma = sma/6371/2;
@@ -90,9 +99,7 @@ function init() {
 	
 	orbit.rotateX(Math.PI/2);
 
-	orbit.applyMatrix(m);
-	
-	scene.add( orbit);	
+	orbit.applyMatrix(m);	
 	
 	
 	var geometry_earth   = new THREE.SphereGeometry(0.5, 32, 32)
@@ -125,7 +132,9 @@ function init() {
 	var mesh_sky  = new THREE.Mesh(geometry_sky, material_sky)
 	scene.add(mesh_sky)
 	
-	
+		
+	scene.add( orbit);
+	initialOrbitIndex = scene.children.length - 1;
 	
 	renderer = new THREE.WebGLRenderer( { antialias: false } );
 	renderer.setSize( window.innerWidth, window.innerHeight );
@@ -146,58 +155,54 @@ function onWindowResize() {
 }
 
 function animate() {
+	newTime = new Date();
+	var dt = newTime - initialTime;
+	dt /= 1000.0;
+	console.log('initialTime: ' + initialTime + ', newTime: ' + newTime);
+
+	if (dt >= dtMax) {
+		initialTime = newTime;
+
+		if (scene.children.length > initialOrbitIndex + maxOrbits) {
+			console.log(scene.children.length);
+			scene.remove(scene.children[initialOrbitIndex]);
+			console.log(scene.children.length);
+		}
+		obj['raan'] += tAcceleration * obj['dRaanByDt'] * dt;
+		obj['aper'] += tAcceleration * obj['dAperByDt'] * dt;
+
+		var geometry_iss = new THREE.TorusGeometry( sma, 0.005, 16, 100 );
+		var material_iss = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+		var orbit = new THREE.Mesh( geometry_iss, material_iss );	
+	
+		var m = new THREE.Matrix4();
+
+		var m1 = new THREE.Matrix4();
+		var m2 = new THREE.Matrix4();
+		var m3 = new THREE.Matrix4();
+
+		var alpha = 0;
+		var beta = Math.PI;
+		var gamma = Math.PI/2;
+
+		m1.makeRotationZ( obj['raan'] * Math.PI / 180);
+		m2.makeRotationX( obj['inc'] * Math.PI / 180);
+		m3.makeRotationZ( obj['aper'] * Math.PI / 180);
+
+		m.multiplyMatrices( m1, m2 );
+		m.multiply( m3 );
+	
+		orbit.rotateX(Math.PI/2);
+
+		orbit.applyMatrix(m);
+	
+		scene.add( orbit);
+	}
 	requestAnimationFrame( animate );
 	controls.update();
 }
 
 function render() {
+
 	renderer.render( scene, camera );
-	var today = new Date();
-	var julian = today.getJulian(); 
-	var localTime = today - initialTime;
-	localTime /= 1000.0
-	var json, req = new XMLHttpRequest();
-	req.open("GET", "api/getJ2TLE", false);
-	req.send(null);
-	if (req.status == 200) {
-		json = req.responseText;
-	} else {
-		console.log('No Ajax received!');
-		json = '[{"inc":0,"raan":0,"ecc":0, "aper":0}]';
-	}
-
-	var obj = JSON.parse(json);
-	console.log(obj);
-	
-	n = obj['mm'] * 2 * Math.PI / 3600 /24;
-	sma = Math.pow( 398600.4418 / Math.pow(n, 2) , 1/3.0)
-	sma = sma/6371/2;
-	
-	var geometry_iss = new THREE.TorusGeometry( sma, 0.005, 16, 100 );
-	var material_iss = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
-	var orbit = new THREE.Mesh( geometry_iss, material_iss );
-	
-	
-	var m = new THREE.Matrix4();
-
-	var m1 = new THREE.Matrix4();
-	var m2 = new THREE.Matrix4();
-	var m3 = new THREE.Matrix4();
-
-	var alpha = 0;
-	var beta = Math.PI;
-	var gamma = Math.PI/2;
-
-	m1.makeRotationZ( obj['raan']*Math.PI/180 + 10 *obj['dRaanByDt'] * localTime);
-	m2.makeRotationX( obj['inc']*Math.PI/180 );
-	m3.makeRotationZ( obj['aper']*Math.PI/180  + 10 *obj['dAperByDt'] * localTime);
-
-	m.multiplyMatrices( m1, m2 );
-	m.multiply( m3 );
-	
-	orbit.rotateX(Math.PI/2);
-
-	orbit.applyMatrix(m);
-	
-	scene.add( orbit);
 }

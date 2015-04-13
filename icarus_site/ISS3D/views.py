@@ -30,18 +30,10 @@ def getTLE(request):
 	return JsonResponse({'inc': inc, 'raan': raan, 'ecc': ecc, 'aper': aper, 'mm':mm}, safe=False)
 
 def getJ2TLE(request):
-	c = pycurl.Curl()
-	data = BytesIO()
+	http = urllib3.PoolManager(cert_reqs='CERT_NONE', assert_hostname=False)
+	r = http.request('GET', 'https://api.wheretheiss.at/v1/satellites/25544/tles')
 
-	c.setopt(pycurl.SSL_VERIFYHOST, 0)
-	c.setopt(pycurl.SSL_VERIFYPEER, 0)
-	c.setopt(pycurl.URL, 'https://api.wheretheiss.at/v1/satellites/25544/tles')
-	c.setopt(c.WRITEDATA, data)
-
-	c.perform()
-	c.close()
-
-	dictionary = json.loads(data.getvalue().decode())
+	dictionary = json.loads(r.data.decode())
 	
 	line2 = dictionary['line2']
 	inc = float(line2[9:16])
@@ -60,8 +52,8 @@ def getJ2TLE(request):
 	p *= (1.0 - ecc * ecc)
  
 	dRaanByDt = -1.5 * mm_rad * J2 * REarth**2 / p**2
-	dAperByDt = 2.0 * dRaanByDt * (1.25 * mth.sin(inc_rad)**2 - 1.0)
-	dRaanByDt *= mth.cos(inc_rad)
+	dAperByDt = 2.0 * dRaanByDt * (1.25 * mth.sin(inc_rad)**2 - 1.0) * 180.0 / mth.pi
+	dRaanByDt *= mth.cos(inc_rad) * 180.0 / mth.pi
 
 	return JsonResponse({'inc':inc,'raan': raan, 'ecc': ecc, 'aper': aper, 'mm':mm,
 		'dRaanByDt':dRaanByDt, 'dAperByDt':dAperByDt}, safe=False)
