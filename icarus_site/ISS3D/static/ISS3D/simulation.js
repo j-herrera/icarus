@@ -3,9 +3,11 @@ var camera, controls, scene, renderer;
 var initialTime = new Date();
 var newTime;
 var dtMax = 10;
-var tAcceleration = 10;
+var tAcceleration = 6;
 var initialOrbitIndex;
 var maxOrbits = 5;
+var orbitColors = [0xcc3300, 0xff3300, 0xff6633, 0xff9966, 0xffcc99]
+var iColor = 0;
 var obj;
 
 //var dRaanByDt, dAperByDt;
@@ -76,7 +78,8 @@ function init() {
 	sma = sma/6371/2;
 	
 	var geometry_iss = new THREE.TorusGeometry( sma, 0.005, 16, 100 );
-	var material_iss = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+	var material_iss = new THREE.MeshBasicMaterial( { color: orbitColors[iColor] } );
+	iColor ++;
 	var orbit = new THREE.Mesh( geometry_iss, material_iss );
 	
 	
@@ -158,12 +161,12 @@ function animate() {
 	newTime = new Date();
 	var dt = newTime - initialTime;
 	dt /= 1000.0;
-	console.log('initialTime: ' + initialTime + ', newTime: ' + newTime);
+	iColor = iColor % maxOrbits;
 
 	if (dt >= dtMax) {
 		initialTime = newTime;
 
-		if (scene.children.length > initialOrbitIndex + maxOrbits) {
+		if (scene.children.length == initialOrbitIndex + maxOrbits) {
 			console.log(scene.children.length);
 			scene.remove(scene.children[initialOrbitIndex]);
 			console.log(scene.children.length);
@@ -172,7 +175,8 @@ function animate() {
 		obj['aper'] += tAcceleration * obj['dAperByDt'] * dt;
 
 		var geometry_iss = new THREE.TorusGeometry( sma, 0.005, 16, 100 );
-		var material_iss = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+		var material_iss = new THREE.MeshBasicMaterial( { color: orbitColors[iColor] } );
+		iColor ++;
 		var orbit = new THREE.Mesh( geometry_iss, material_iss );	
 	
 		var m = new THREE.Matrix4();
