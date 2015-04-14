@@ -43,7 +43,7 @@ def getJ2TLE(request):
 	mm = float(line2[52:63])
 
 	J2 = 1.08262668e-3
-	REarth = 6.378137e6
+	REarth = 6.371e6
 	muEarth = 398600.4418e9
 
 	mm_rad = mm * mth.pi / 43200.0

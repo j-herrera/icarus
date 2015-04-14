@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>ISS trace</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.3/mapbox.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.3/mapbox.css' rel='stylesheet' />
+
+<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-geodesy/v0.1.0/leaflet-geodesy.js'></script>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+  
+  .ISS-dot {
+	  background:#00B800;
+	  border:1px solid rgba(255,255,255,0.5);
+	  color:#fff;
+	  font-weight:bold;
+	  text-align:center;
+	  border-radius:50%;
+	  line-height:30px;
+  }
+
+</style>
+</head>
+<body>
+<div id='map'></div>
+{% load staticfiles %}
+<script>
+var map = L.mapbox.map('map', 'examples.map-2k9d7u0c').setView([55.858, -4.259], 2); //.map-i86nkdio  .map-i86l3621 .map-20v6611k .map-8ced9urs .map-h67hf2ic .map-i875mjb7 .map-2k9d7u0c .map-igb471ik 
+
+var ISSLayer = L.mapbox.featureLayer().addTo(map);
+
+ISSLayer.on('layeradd', function(e) {
+	var marker = e.layer,
+		feature = marker.feature;
+		
+	var icon = {
+      "iconSize": [10,10],
+      "iconUrl": "{% static "ISStrace/ISSicon.png" %}",
+      // "iconAnchor": [10,10],
+      // "popupAnchor": [0, -10],
+      //"html": feature.geometry.coordinates,
+      "className": "ISS-dot"
+ 	};
+
+    marker.setIcon(L.divIcon(icon));
+
+});
+
+var REarth = 6371;
+var alt;
+
+//var polyline = L.polyline([]).addTo(map);
+var projection = L.polyline([]).addTo(map);
+
+addPos();
+
+if (!navigator.geolocation) { alert('Get a better browser'); }
+
+navigator.geolocation.getCurrentPosition(function(position) {
+	geojson={"type": "Feature", "id": null, "properties": {}, "geometry": {"type": "Point", "coordinates": [position.coords.longitude, position.coords.latitude]}}
+	
+	L.geoJson(geojson).addTo(map);
+	
+	var alpha = Math.acos(REarth/(REarth+alt));
+	var desyCircle = LGeo.circle([position.coords.latitude, position.coords.longitude], (REarth+alt) * Math.sin(alpha) * 1.e3, {
+		parts: 200,
+		width: 0.1,
+		color: '#f00',
+		fillOpacity: 0
+	}).addTo(map);
+})	
+
+var timePerRedraw = 10000 * 2;
+setInterval(addPos, timePerRedraw);
+
+t=0
+function addPos() {
+	$.getJSON('api/getProjAndPos',callbackfun);
+	
+	function callbackfun(data){
+		map.removeLayer(projection);
+		projection = L.polyline([]).addTo(map);
+		alt = data.properties.alt;
+
+		var dRaanByDt = data.properties.dRaan;
+		var dAperByDt = data.properties.dAper;
+		var inc = data.properties.inc * Math.PI / 180;
+		var raan = data.properties.raan; // raan in deg
+		var aper = data.properties.aper * Math.PI / 180;
+		var ma = data.properties.ma * Math.PI / 180;
+		var secPerRev = 86400 / data.properties.mm;
+		var iter;
+		var latit = data.geometry.coordinates[1]
+		var longit = data.geometry.coordinates[0];
+		var dLongit = longit - raan;
+		dLongit -= 180 * Math.acos(Math.cos(inc)/ Math.cos(latit)) / Math.PI;
+		console.log(ma, latit, longit, inc, ma, aper, raan);
+		
+		var nIter = Math.ceil(1.5 * secPerRev * 1000 / timePerRedraw);
+		nIter=2;
+		for (iter=0; iter < nIter; iter++) {
+//			aper += dAperByDt * timePerRedraw / 1000;
+//			raan += dRaanByDt * timePerRedraw / 1000;
+			ma += 2 * Math.PI * data.properties.mm * timePerRedraw / 1000 / 86400;
+			ma = (ma + 2.0 * Math.PI) % Math.PI;
+			projection.addLatLng(
+				L.latLng(
+					latit,
+					longit
+				)
+			);
+			latit = Math.asin(Math.sin(inc) * Math.sin(ma + aper));
+			longit = dLongit + raan;
+			longit += 180.0 * Math.acos(Math.cos(inc)/ Math.cos(latit)) / Math.PI;
+			latit *= 180 / Math.PI;
+			longit = ((longit + 540) % 360) - 180;
+			latit = ((latit + 270) % 180) - 90;
+			
+			console.log(ma, latit, longit, inc, ma, aper, raan);
+		}
+ 
+/*		polyline.addLatLng(
+		L.latLng(
+		data.geometry.coordinates[1],
+		data.geometry.coordinates[0]));*/
+
+		ISSLayer.setGeoJSON(data);
+
+		var messg = '<h2>Telemetry data<\/h2>' +
+		'<p>Lat: ' + data.geometry.coordinates[1] + '<br \/>' +
+		'Lon: ' + data.geometry.coordinates[0] +  '<br \/>' +
+		'Velocity: ' + data.properties.vel + '<br \/>' +
+		'Altitude: ' + data.properties.alt + '<\/p>'
+		;
+		ISSLayer.bindPopup(messg);
+
+	}
+
+////	// Pan the map along with where the line is being added.
+////	map.setView([0, pointsAdded], 3);
+}
+
+</script>
+</body>
+</html>
